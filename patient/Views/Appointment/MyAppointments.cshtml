@@ -1,0 +1,48 @@
+﻿@model IEnumerable<Appointment>
+
+@{
+    ViewData["Title"] = "My Bookings";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">My Bookings List </h2>
+
+    @if (Model == null || !Model.Any())
+    {
+        <div class="alert alert-info text-center">No bookings registered yet.</div>
+    }
+    else
+    {
+        <table class="table table-striped table-hover shadow-sm align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th>Doctor Name</th>
+                    <th>Specialization</th>
+                    <th>Booking Time</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>Dr. @item.TimeSlot?.Doctor?.Name</td>
+                        <td>@item.TimeSlot?.Doctor?.Specialization</td>
+                        <td>@item.TimeSlot?.SlotDate.ToString("yyyy-MM-dd HH:mm")</td>
+                        <td>
+                            <span class="badge bg-success">Confirmed</span>
+                        </td>
+                        <td>
+                            <form asp-controller="Appointment" asp-action="CancelBooking" method="post" class="d-inline">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@item.Id" />
+                                <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to cancel this booking?')">Cancel Booking</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

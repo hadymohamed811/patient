@@ -1,0 +1,47 @@
+﻿@model IEnumerable<Appointment>
+
+@{
+    ViewData["Title"] = "My Patient";
+}
+
+<div class="container mt-4">
+    <h2>Patient who booked the deal</h2>
+
+    <table class="table table-bordered table-striped mt-3">
+        <thead>
+            <tr>
+                <th>Patient Name</th>
+                <th>Phone Number</th>
+                <th>Book Time</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@(item.Patient?.Name ?? " Unkown")</td>
+                        <td>@(item.Patient?.Phone ?? " Unkown")</td>
+                        <td>
+                            @if (item.TimeSlot != null)
+                            {
+                                <span>@item.TimeSlot.SlotDate.ToString("g")</span>
+                            }
+                            else
+                            {
+                                <span>Unknown</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center text-muted">No reservations yet</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

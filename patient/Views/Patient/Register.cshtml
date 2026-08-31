@@ -1,0 +1,40 @@
+﻿@model Patient
+
+@{
+    ViewData["Title"] = "New Patient Registration";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3>Register New Patient 🏥</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-action="SaveRegister" method="post">
+                        <div class="mb-3">
+                            <label class="form-label">Patient Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Email Address</label>
+                            <input asp-for="Email" class="form-control" type="email" placeholder="name@example.com" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Phone Number</label>
+                            <input asp-for="Phone" class="form-control" placeholder="010xxxxxxxx" />
+                            <span asp-validation-for="Phone" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Register Account</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

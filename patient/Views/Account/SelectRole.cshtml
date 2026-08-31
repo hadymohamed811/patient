@@ -1,0 +1,23 @@
+﻿@{
+    ViewData["Title"] = "Select Account Type";
+}
+
+<div class="container mt-5 text-center">
+    <h2> Please select account type to continue</h2>
+    <p class="text-muted">Do you wish to register as adoctor or a patient</p>
+
+    <form asp-action="SelectRole" method="post" class="mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-4 mb-3">
+                <button type="submit" name="role" value="Doctor" class="btn btn-outline-primary btn-lg w-100 p-4 shadow-sm">
+                    Doctor
+                </button>
+            </div>
+            <div class="col-md-4 mb-3">
+                <button type="submit" name="role" value="Patient" class="btn btn-outline-success btn-lg w-100 p-4 shadow-sm">
+                    Patient
+                </button>
+            </div>
+        </div>
+    </form>
+</div>

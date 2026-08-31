@@ -1,0 +1,36 @@
+﻿@model Doctor
+
+@{
+    ViewData["Title"] = "Add New Doctor";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h3>Add New Doctor 🩺</h3>
+                </div>
+                <div class="card-body">
+                    <form asp-controller="Doctor" asp-action="SaveAdd" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label class="form-label">Doctor Name</label>
+                            <input asp-for="Name" class="form-control" placeholder="Enter doctor's full name" />
+                            <span asp-validation-for="Name" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Specialization</label>
+                            <input asp-for="Specialization" class="form-control" placeholder="e.g. Cardiology, Dentists..." />
+                            <span asp-validation-for="Specialization" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-success w-100">Save Doctor</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

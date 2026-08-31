@@ -1,0 +1,43 @@
+﻿@model Doctor
+
+@{
+    ViewData["Title"] = "Doctor Details";
+}
+
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h3>Dr. @Model.Name 🩺</h3>
+        </div>
+        <div class="card-body">
+            <h5 class="text-muted">Specialization: @Model.Specialization</h5>
+            <hr />
+
+            <h4 class="mb-3">Available Appointment Slots:</h4>
+
+            @if (Model.TimeSlots == null || !Model.TimeSlots.Any())
+            {
+                <div class="alert alert-warning">No available slots for this doctor at the moment.</div>
+            }
+            else
+            {
+                <div class="list-group">
+                    @foreach (var slot in Model.TimeSlots)
+                    {
+                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>📅 @slot.SlotDate.ToString("yyyy-MM-dd HH:mm")</span>
+                            @if (slot.IsBooked)
+                            {
+                                <span class="badge bg-danger">Booked</span>
+                            }
+                            else
+                            {
+                                <a asp-controller="Appointment" asp-action="Book" asp-route-timeSlotId="@slot.Id" class="btn btn-sm btn-success">Book Slot</a>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

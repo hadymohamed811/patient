@@ -1,0 +1,29 @@
+﻿@model TimeSlot
+
+@{
+    ViewData["Title"] = "Edit Time Slot";
+}
+
+<div class="container mt-4">
+    <h2>Edit Available Time Slot</h2>
+
+    <form asp-action="Edit" method="post">
+       
+        <input type="hidden" asp-for="Id" />
+
+        <div class="form-group mb-3">
+            <label class="control-label">Doctor</label>
+            <select asp-for="DoctorId" class="form-control" asp-items="@(new SelectList(ViewBag.Doctors, "Id", "Name"))">
+                <option value="">-- Select Doctor --</option>
+            </select>
+            <span asp-validation-for="DoctorId" class="text-danger"></span>
+        </div>
+
+     
+
+        <div class="form-group">
+            <button type="submit" class="btn btn-success">Save Changes</button>
+            <a asp-action="BookAppointment" asp-controller="Appointment" class="btn btn-secondary">Cancel</a>
+        </div>
+    </form>
+</div>
