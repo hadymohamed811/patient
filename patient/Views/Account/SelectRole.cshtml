@@ -1,23 +1,16 @@
-﻿@{
-    ViewData["Title"] = "Select Account Type";
-}
+﻿<div class="container text-center mt-5">
+    @if (User.IsInRole("Admin"))
+    {
+        <h2 class="mb-4">Welcome Admin</h2>
+        <a asp-controller="Admin" asp-action="CreateDoctor" class="btn btn-dark btn-lg px-5 py-3">Create Doctor</a>
+    }
+    else
+    {
+        <h3>Please select account type to continue</h3>
+        <p>Do you wish to register as a doctor or a patient</p>
 
-<div class="container mt-5 text-center">
-    <h2> Please select account type to continue</h2>
-    <p class="text-muted">Do you wish to register as adoctor or a patient</p>
-
-    <form asp-action="SelectRole" method="post" class="mt-4">
-        <div class="row justify-content-center">
-            <div class="col-md-4 mb-3">
-                <button type="submit" name="role" value="Doctor" class="btn btn-outline-primary btn-lg w-100 p-4 shadow-sm">
-                    Doctor
-                </button>
-            </div>
-            <div class="col-md-4 mb-3">
-                <button type="submit" name="role" value="Patient" class="btn btn-outline-success btn-lg w-100 p-4 shadow-sm">
-                    Patient
-                </button>
-            </div>
+        <div class="mt-4">
+            <a asp-controller="Account" asp-action="RegisterPatient" class="btn btn-outline-primary btn-lg mx-2">Patient</a>
         </div>
-    </form>
+    }
 </div>

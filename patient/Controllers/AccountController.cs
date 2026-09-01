@@ -38,8 +38,15 @@ namespace patient.Controllers
 
             if (result.Succeeded)
             {
+                if (!await _roleManager.RoleExistsAsync("Patient"))
+                {
+                    await _roleManager.CreateAsync(new IdentityRole("Patient"));
+                }
+                await _userManager.AddToRoleAsync(user, "Patient");
+
                 await _signInManager.SignInAsync(user, isPersistent: false);
-                return RedirectToAction("SelectRole", "Account");
+
+                return RedirectToAction("Register", "Patient");
             }
 
             foreach (var error in result.Errors)
@@ -60,13 +67,11 @@ namespace patient.Controllers
         [Authorize]
         public async Task<IActionResult> SelectRole(string role)
         {
-          
             if (!await _roleManager.RoleExistsAsync(role))
             {
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
 
-     
             var user = await _userManager.GetUserAsync(User);
             if (user != null)
             {
@@ -76,10 +81,8 @@ namespace patient.Controllers
                     await _userManager.RemoveFromRolesAsync(user, currentRoles);
                 }
 
-             
                 await _userManager.AddToRoleAsync(user, role);
 
-             
                 await _signInManager.RefreshSignInAsync(user);
             }
 
@@ -111,7 +114,11 @@ namespace patient.Controllers
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user != null)
                 {
-                
+                    if (await _userManager.IsInRoleAsync(user, "Admin"))
+                    {
+                        return RedirectToAction("CreateDoctor", "Admin");
+                    }
+
                     if (await _userManager.IsInRoleAsync(user, "Doctor"))
                     {
                         return RedirectToAction("Index", "Home");
@@ -122,7 +129,6 @@ namespace patient.Controllers
                         return RedirectToAction("BookAppointment", "Appointment");
                     }
 
-            
                     var isDoctor = await _context.Doctors.AnyAsync(d => d.UserId == user.Id);
                     if (isDoctor)
                     {
@@ -139,7 +145,6 @@ namespace patient.Controllers
                         return RedirectToAction("Index", "Home");
                     }
 
-              
                     var isPatient = await _context.Patients.AnyAsync(p => p.UserId == user.Id);
                     if (isPatient)
                     {
@@ -162,7 +167,7 @@ namespace patient.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            ModelState.AddModelError("", "فشل تسجيل الدخول، تأكد من البريد الإلكتروني أو كلمة المرور.");
+            ModelState.AddModelError("", "Invalid login attempt.");
             return View();
         }
 
