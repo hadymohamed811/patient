@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using patient.Models;
 using patient.Repositories;
-using System.Security.Claims; 
+using System.Security.Claims;
 
 namespace patient.Controllers
 {
@@ -19,7 +19,6 @@ namespace patient.Controllers
             _context = context;
         }
 
-       
         public async Task<IActionResult> Index()
         {
             var doctors = await _doctorRepo.GetAllAsync();
@@ -28,21 +27,37 @@ namespace patient.Controllers
 
     
         [HttpGet]
+        public async Task<IActionResult> MyProfile()
+        {
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        
+            var doctor = await _context.Doctors.FirstOrDefaultAsync(d => d.UserId == currentUserId);
+
+            if (doctor == null)
+            {
+          
+                return RedirectToAction(nameof(Add));
+            }
+
+       
+            return View("Details", doctor);
+        }
+
+        [HttpGet]
         public IActionResult Add()
         {
             return View();
         }
 
-      
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> SaveAdd(Doctor doctorRequest)
         {
             if (ModelState.IsValid)
             {
-               
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                doctorRequest.UserId = userId; 
+                doctorRequest.UserId = userId;
 
                 await _doctorRepo.AddAsync(doctorRequest);
                 return RedirectToAction(nameof(Index));
@@ -50,7 +65,6 @@ namespace patient.Controllers
             return View("Add", doctorRequest);
         }
 
-    
         public async Task<IActionResult> Details(int id)
         {
             var doctor = await _doctorRepo.GetByIdAsync(id);
@@ -61,7 +75,6 @@ namespace patient.Controllers
             return View(doctor);
         }
 
-   
         public async Task<IActionResult> MyPatients(int doctorId)
         {
             var doctor = await _context.Doctors
@@ -78,7 +91,6 @@ namespace patient.Controllers
             return View(doctor);
         }
 
-      
         [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
@@ -87,38 +99,61 @@ namespace patient.Controllers
             {
                 return NotFound();
             }
+
+        
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (doctor.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+
             return View(doctor);
         }
 
-     
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(Doctor doctor)
         {
             if (ModelState.IsValid)
             {
-              
                 var existingDoctor = await _doctorRepo.GetByIdAsync(doctor.Id);
-                if (existingDoctor != null)
+                if (existingDoctor == null)
                 {
-                    existingDoctor.Name = doctor.Name;
-                    existingDoctor.Specialization = doctor.Specialization;
-
-                    await _doctorRepo.UpdateAsync(existingDoctor);
+                    return NotFound();
                 }
+
+            
+                var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+                if (existingDoctor.UserId != currentUserId)
+                {
+                    return Forbid(); 
+                }
+
+                existingDoctor.Name = doctor.Name;
+                existingDoctor.Specialization = doctor.Specialization;
+
+                await _doctorRepo.UpdateAsync(existingDoctor);
                 return RedirectToAction(nameof(Index));
             }
             return View(doctor);
         }
 
-  
         public async Task<IActionResult> Delete(int id)
         {
             var doctor = await _doctorRepo.GetByIdAsync(id);
-            if (doctor != null)
+            if (doctor == null)
             {
-                await _doctorRepo.DeleteAsync(doctor);
+                return NotFound();
             }
+
+           
+            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (doctor.UserId != currentUserId)
+            {
+                return Forbid();
+            }
+
+            await _doctorRepo.DeleteAsync(doctor);
             return RedirectToAction(nameof(Index));
         }
     }

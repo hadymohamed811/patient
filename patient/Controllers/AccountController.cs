@@ -10,18 +10,20 @@ namespace patient.Controllers
     {
         private readonly UserManager<IdentityUser> _userManager;
         private readonly SignInManager<IdentityUser> _signInManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ApplicationDbContext _context;
 
         public AccountController(UserManager<IdentityUser> userManager,
                                  SignInManager<IdentityUser> signInManager,
+                                 RoleManager<IdentityRole> roleManager,
                                  ApplicationDbContext context)
         {
             _userManager = userManager;
             _signInManager = signInManager;
+            _roleManager = roleManager;
             _context = context;
         }
 
- 
         [HttpGet]
         public IActionResult Register()
         {
@@ -37,8 +39,6 @@ namespace patient.Controllers
             if (result.Succeeded)
             {
                 await _signInManager.SignInAsync(user, isPersistent: false);
-
-           
                 return RedirectToAction("SelectRole", "Account");
             }
 
@@ -49,7 +49,6 @@ namespace patient.Controllers
             return View();
         }
 
-     
         [HttpGet]
         [Authorize]
         public IActionResult SelectRole()
@@ -59,23 +58,43 @@ namespace patient.Controllers
 
         [HttpPost]
         [Authorize]
-        public IActionResult SelectRole(string role)
+        public async Task<IActionResult> SelectRole(string role)
         {
+          
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(role));
+            }
+
+     
+            var user = await _userManager.GetUserAsync(User);
+            if (user != null)
+            {
+                var currentRoles = await _userManager.GetRolesAsync(user);
+                if (currentRoles.Any())
+                {
+                    await _userManager.RemoveFromRolesAsync(user, currentRoles);
+                }
+
+             
+                await _userManager.AddToRoleAsync(user, role);
+
+             
+                await _signInManager.RefreshSignInAsync(user);
+            }
+
             if (role == "Doctor")
             {
-            
                 return RedirectToAction("Add", "Doctor");
             }
             else if (role == "Patient")
             {
-        
                 return RedirectToAction("Register", "Patient");
             }
 
             return RedirectToAction("Index", "Home");
         }
 
-     
         [HttpGet]
         public IActionResult Login()
         {
@@ -92,21 +111,51 @@ namespace patient.Controllers
                 var user = await _userManager.FindByEmailAsync(email);
                 if (user != null)
                 {
-        
-                    var isDoctor = await _context.Doctors.AnyAsync(d => d.UserId == user.Id);
-                    if (isDoctor)
+                
+                    if (await _userManager.IsInRoleAsync(user, "Doctor"))
                     {
                         return RedirectToAction("Index", "Home");
                     }
 
-            
-                    var isPatient = await _context.Patients.AnyAsync(p => p.UserId == user.Id);
-                    if (isPatient)
+                    if (await _userManager.IsInRoleAsync(user, "Patient"))
                     {
                         return RedirectToAction("BookAppointment", "Appointment");
                     }
 
-               
+            
+                    var isDoctor = await _context.Doctors.AnyAsync(d => d.UserId == user.Id);
+                    if (isDoctor)
+                    {
+                        if (!await _roleManager.RoleExistsAsync("Doctor"))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole("Doctor"));
+                        }
+
+                        if (!await _userManager.IsInRoleAsync(user, "Doctor"))
+                        {
+                            await _userManager.AddToRoleAsync(user, "Doctor");
+                        }
+
+                        return RedirectToAction("Index", "Home");
+                    }
+
+              
+                    var isPatient = await _context.Patients.AnyAsync(p => p.UserId == user.Id);
+                    if (isPatient)
+                    {
+                        if (!await _roleManager.RoleExistsAsync("Patient"))
+                        {
+                            await _roleManager.CreateAsync(new IdentityRole("Patient"));
+                        }
+
+                        if (!await _userManager.IsInRoleAsync(user, "Patient"))
+                        {
+                            await _userManager.AddToRoleAsync(user, "Patient");
+                        }
+
+                        return RedirectToAction("BookAppointment", "Appointment");
+                    }
+
                     return RedirectToAction("SelectRole", "Account");
                 }
 
@@ -117,7 +166,6 @@ namespace patient.Controllers
             return View();
         }
 
-   
         public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();

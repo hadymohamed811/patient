@@ -22,7 +22,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                   
+
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -30,19 +30,33 @@
 
                         @if (SignInManager.IsSignedIn(User))
                         {
-                        
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Appointment" asp-action="BookAppointment">Book Appointment</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Appointment" asp-action="MyAppointments">My Bookings</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="TimeSlot" asp-action="Add">Add Slots (For Doctors)</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Appointment" asp-action="DoctorAppointments">Patient Appointments (For Doctors)</a>
-                            </li>
+                         
+                            @if (User.IsInRole("Doctor"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Doctor" asp-action="MyProfile">My Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="TimeSlot" asp-action="Add">Add Slots</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Appointment" asp-action="DoctorAppointments">Patient Appointments</a>
+                                </li>
+                            }
+
+                            @* 💊 روابط خاصة بالمريض فقط *@
+                            @if (User.IsInRole("Patient"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Patient" asp-action="MyProfile">My Profile</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Appointment" asp-action="BookAppointment">Book Appointment</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Appointment" asp-action="MyAppointments">My Bookings</a>
+                                </li>
+                            }
                         }
 
                         <li class="nav-item">
@@ -50,7 +64,6 @@
                         </li>
                     </ul>
 
-                  
                     <ul class="navbar-nav ms-auto">
                         @if (SignInManager.IsSignedIn(User))
                         {

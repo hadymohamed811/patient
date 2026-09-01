@@ -6,7 +6,7 @@ using patient.Models;
 
 namespace patient.Controllers
 {
-    [Authorize]
+    [Authorize(Roles = "Doctor")]
     public class TimeSlotController : Controller
     {
         private readonly ApplicationDbContext _context;
